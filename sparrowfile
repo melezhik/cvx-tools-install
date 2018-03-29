@@ -13,3 +13,17 @@ bash "if grep -q 'deb https://pkg.jenkins.io/debian' /etc/apt/sources.list; then
   );
 
 
+bash 'apt-get update -q';
+
+
+package-install ('default-jre','jenkins', 'telnet');
+
+file '/etc/default/jenkins', %( content => (slurp 'configs/jenkins') );
+
+service-enable 'jenkins';
+
+service-start 'jenkins';
+
+bash 'echo OK | telnet 127.0.0.1 8080 | grep "Connected to 127.0.0.1."';
+
+
