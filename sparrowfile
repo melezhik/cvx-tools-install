@@ -48,7 +48,7 @@ module_run 'RemoteFile', %(
 
 bash 'cd /var/cvx-tools/temp/ && chmod a+x *.bin', %( description => 'set execute mode for attlassian binaries');
 
-bash './var/cvx-tools/temp/atlassian-jira-software-7.8.1-x64.bin';
+#bash '/var/cvx-tools/temp/atlassian-jira-software-7.8.1-x64.bin';
 
 file '/opt/atlassian/jira/bin/setenv.sh', %( content => (slurp 'configs/jira/setenv.sh') );
 
@@ -56,16 +56,21 @@ service-enable 'jira';
 
 service-restart 'jira';
 
+bash 'sleep 10';
+
+
 bash 'echo OK | telnet 127.0.0.1 8181 | grep "Connected to 127.0.0.1."';
 
 # install Confluence 
 
-bash '/var/cvx-tools/temp/atlassian-confluence-6.8.0-x64.bin';
+#bash '/var/cvx-tools/temp/atlassian-confluence-6.8.0-x64.bin';
 
 file '/opt/atlassian/confluence/bin/setenv.sh', %( content => (slurp 'configs/confluence/setenv.sh') );
 
 service-enable 'confluence';
 
 service-restart 'confluence';
+
+bash 'sleep 10';
 
 bash 'echo OK | telnet 127.0.0.1 8090 | grep "Connected to 127.0.0.1."';
