@@ -1,0 +1,15 @@
+#!perl6
+
+package-install 'apt-transport-https';
+
+bash 'wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key  | apt-key add - ';
+
+bash "if grep -q 'deb https://pkg.jenkins.io/debian' /etc/apt/sources.list; then
+    echo '/etc/apt/sources.list has deb https://pkg.jenkins.io/debian  line'
+  else
+    echo 'deb https://pkg.jenkins.io/debian binary/' >> /etc/apt/sources.list 
+  fi", %( 
+    description => 'Add Jenkins Source to apt sources list', 
+  );
+
+
