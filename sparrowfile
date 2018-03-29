@@ -1,5 +1,6 @@
 #!perl6
 
+# Install Jenkins 
 package-install 'apt-transport-https';
 
 bash 'wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key  | apt-key add - ';
@@ -15,10 +16,9 @@ bash "if grep -q 'deb https://pkg.jenkins.io/debian' /etc/apt/sources.list; then
 
 bash 'apt-get update -q';
 
-
 package-install ('default-jre','jenkins', 'telnet');
 
-file '/etc/default/jenkins', %( content => (slurp 'configs/jenkins') );
+file '/etc/default/jenkins', %( content => (slurp 'configs/jenkins/default') );
 
 service-enable 'jenkins';
 
@@ -27,3 +27,45 @@ service-start 'jenkins';
 bash 'echo OK | telnet 127.0.0.1 8080 | grep "Connected to 127.0.0.1."';
 
 
+# Download Atlassian binaries
+
+directory '/var/cvx-tools/temp';
+
+
+module_run 'RemoteFile', %(
+    url       => 'https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.8.1-x64.bin',
+    location  => '/var/cvx-tools/temp/atlassian-jira-software-7.8.1-x64.bin'
+) unless "/var/cvx-tools/temp/atlassian-jira-software-7.8.1-x64.bin".IO.e;
+
+module_run 'RemoteFile', %(
+    url       => 'https://www.atlassian.com/software/confluence/downloads/binary/atlassian-confluence-6.8.0-x64.bin',
+    location  => '/var/cvx-tools/temp/atlassian-confluence-6.8.0-x64.bin'
+) unless "/var/cvx-tools/temp/atlassian-confluence-6.8.0-x64.bin".IO.e;
+
+
+
+# install Jira
+
+bash 'cd /var/cvx-tools/temp/ && chmod a+x *.bin', %( description => 'set execute mode for attlassian binaries');
+
+bash './var/cvx-tools/temp/atlassian-jira-software-7.8.1-x64.bin';
+
+file '/opt/atlassian/jira/bin/setenv.sh', %( content => (slurp 'configs/jira/setenv.sh') );
+
+service-enable 'jira';
+
+service-restart 'jira';
+
+bash 'echo OK | telnet 127.0.0.1 8181 | grep "Connected to 127.0.0.1."';
+
+# install Confluence 
+
+bash '/var/cvx-tools/temp/atlassian-confluence-6.8.0-x64.bin';
+
+file '/opt/atlassian/confluence/bin/setenv.sh', %( content => (slurp 'configs/confluence/setenv.sh') );
+
+service-enable 'confluence';
+
+service-restart 'confluence';
+
+bash 'echo OK | telnet 127.0.0.1 8090 | grep "Connected to 127.0.0.1."';
