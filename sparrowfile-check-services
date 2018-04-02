@@ -1,0 +1,11 @@
+#!perl6
+
+# Install Jenkins 
+
+#service-restart 'jenkins';
+
+#service-restart 'jira';
+
+#service-restart 'confluence';
+
+bash "netstat -nlp|grep 0:8|wc -l", %( expect_stdout => 3 );
